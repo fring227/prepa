@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArchivePrepa — Bibliothèque Numérique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0f;
+    --paper: #f5f0e8;
+    --cream: #ede8d8;
+    --amber: #c8922a;
+    --amber-light: #e6b04a;
+    --rust: #8b3a2a;
+    --sage: #4a5e4a;
+    --muted: #6b6560;
+    --line: rgba(10,10,15,0.12);
+    --serif: 'Playfair Display', Georgia, serif;
+    --mono: 'Space Mono', monospace;
+    --body: 'Crimson Pro', Georgia, serif;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 18px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ─── GRAIN OVERLAY ─── */
+  body::before {
+    content:'';
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:9999;
+    opacity:.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 150px;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative;
+    padding: 2.5rem 6vw 0;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .masthead {
+    flex: 1;
+    text-align: center;
+  }
+
+  .masthead-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .masthead-title {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    color: var(--ink);
+    position: relative;
+    display: inline-block;
+  }
+
+  .masthead-title em {
+    color: var(--amber);
+    font-style: italic;
+  }
+
+  .masthead-subtitle {
+    font-family: var(--body);
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .header-meta {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    line-height: 2;
+    min-width: 130px;
+  }
+
+  .header-meta.right { text-align: right; }
+
+  .header-nav {
+    display: flex;
+    gap: 2.5rem;
+    padding: 0.9rem 0;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .header-nav a {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--ink);
+    text-decoration: none;
+    position: relative;
+    cursor: pointer;
+    transition: color .2s;
+  }
+
+  .header-nav a::after {
+    content:'';
+    position:absolute;
+    bottom:-2px; left:0; right:0;
+    height:1px;
+    background: var(--amber);
+    transform: scaleX(0);
+    transition: transform .25s;
+    transform-origin: left;
+  }
+
+  .header-nav a:hover { color: var(--amber); }
+  .header-nav a:hover::after { transform: scaleX(1); }
+  .header-nav a.active { color: var(--amber); }
+  .header-nav a.active::after { transform: scaleX(1); }
+
+  /* ─── TICKER ─── */
+  .ticker-wrap {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    overflow: hidden;
+    padding: 0.45rem 0;
+  }
+
+  .ticker-inner {
+    display: flex;
+    white-space: nowrap;
+    animation: ticker 30s linear infinite;
+  }
+
+  .ticker-inner span { margin-right: 4rem; }
+  .ticker-inner span::before { content: '◆  '; color: var(--amber); }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ─── HERO SECTION ─── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 2px 1fr;
+    gap: 0;
+    min-height: 55vh;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-divider { background: var(--ink); }
+
+  .hero-left {
+    padding: 4rem 5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: none;
+    position: relative;
+  }
+
+  .hero-left::after {
+    content: '';
+    position: absolute;
+    bottom: 2rem;
+    left: 5vw;
+    width: 3rem;
+    height: 1px;
+    background: var(--amber);
+  }
+
+  .hero-kicker {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 1.2rem;
+  }
+
+  .hero-headline {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3.5vw, 3rem);
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: var(--ink);
+  }
+
+  .hero-headline strong { font-weight: 700; }
+
+  .hero-body {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 38ch;
+    font-style: italic;
+  }
+
+  .hero-right {
+    padding: 3rem 5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--cream);
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: auto;
+  }
+
+  .stat-cell {
+    background: var(--cream);
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+    display: block;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-top: 0.3rem;
+    display: block;
+  }
+
+  .search-row {
+    display: flex;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    margin-bottom: 2rem;
+  }
+
+  .search-row input {
+    flex: 1;
+    padding: 0.9rem 1.2rem;
+    border: none;
+    background: transparent;
+    font-family: var(--body);
+    font-size: 1rem;
+    color: var(--ink);
+    outline: none;
+  }
+
+  .search-row input::placeholder { color: var(--muted); font-style: italic; }
+
+  .search-row button {
+    padding: 0 1.4rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .2s;
+  }
+
+  .search-row button:hover { background: var(--amber); }
+
+  /* ─── SECTION DIVIDER ─── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem 6vw 0;
+    margin-bottom: 0;
+  }
+
+  .section-header h2 {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 400;
+    white-space: nowrap;
+    color: var(--ink);
+  }
+
+  .section-header h2 em { color: var(--amber); font-style: italic; }
+
+  .section-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--ink);
+  }
+
+  .section-count {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+  }
+
+  /* ─── FILTERS ─── */
+  .filters {
+    padding: 1.2rem 6vw;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-label {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-right: 0.5rem;
+  }
+
+  .filter-btn {
+    padding: 0.35rem 0.9rem;
+    border: 1px solid var(--line);
+    background: transparent;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .2s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* ─── ARCHIVE GRID ─── */
+  #archive {
+    padding: 2rem 6vw 5rem;
+  }
+
+  .archive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+
+  .doc-card {
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 1.8rem;
+    position: relative;
+    transition: background .2s;
+    cursor: pointer;
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .doc-card:hover {
+    background: var(--cream);
+    z-index: 1;
+  }
+
+  .doc-card::before {
+    content: attr(data-num);
+    position: absolute;
+    top: 1rem;
+    right: 1.2rem;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    color: var(--line);
+    letter-spacing: 0.1em;
+  }
+
+  .doc-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--amber);
+  }
+
+  .doc-tag::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    background: var(--amber);
+    display: inline-block;
+  }
+
+  .doc-title {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+
+  .doc-meta {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .doc-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .doc-open-btn {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 1px;
+    width: fit-content;
+    transition: color .2s, border-color .2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    cursor: pointer;
+  }
+
+  .doc-open-btn:hover { color: var(--amber); border-color: var(--amber); }
+
+  .doc-open-btn svg {
+    width: 10px;
+    height: 10px;
+    transition: transform .2s;
+  }
+
+  .doc-card:hover .doc-open-btn svg { transform: translate(2px, -2px); }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 6rem 2rem;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .empty-state p {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--muted);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 2px solid var(--ink);
+    padding: 2.5rem 6vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 1rem;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  footer .f-logo {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  footer .f-logo em { color: var(--amber); font-style: italic; }
+
+  footer .f-copy {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.4);
+  }
+
+  /* ─── PDF VIEWER MODAL ─── */
+  .viewer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,15,0.92);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn .25s ease;
+  }
+
+  .viewer-overlay.open { display: flex; }
+
+  @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+
+  .viewer-box {
+    width: 92vw;
+    height: 92vh;
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 2px solid var(--ink);
+    animation: slideUp .3s ease;
+  }
+
+  @keyframes slideUp { from { transform: translateY(30px); opacity:0; } to { transform:none; opacity:1; } }
+
+  .viewer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1.5rem;
+    border-bottom: 1.5px solid var(--ink);
+    background: var(--cream);
+    flex-shrink: 0;
+  }
+
+  .viewer-title {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%;
+  }
+
+  .viewer-close {
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s;
+    flex-shrink: 0;
+  }
+
+  .viewer-close:hover { background: var(--rust); }
+
+  .viewer-iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+  }
+
+  /* ─── ADMIN PANEL ─── */
+  .admin-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,15,0.97);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn .2s;
+  }
+
+  .admin-overlay.open { display: flex; }
+
+  .admin-box {
+    width: min(700px, 95vw);
+    background: #0f0f14;
+    border: 1px solid #2a2a35;
+    display: flex;
+    flex-direction: column;
+    max-height: 92vh;
+    overflow: hidden;
+    position: relative;
+    animation: slideUp .3s ease;
+  }
+
+  .admin-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #2a2a35;
+    background: #090910;
+  }
+
+  .admin-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .admin-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+
+  .admin-topbar-title {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: #5a5a70;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-left: 0.5rem;
+  }
+
+  .admin-close-btn {
+    background: none;
+    border: none;
+    color: #5a5a70;
+    font-size: 1.1rem;
+    cursor: pointer;
+    font-family: var(--mono);
+    transition: color .2s;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .admin-close-btn:hover { color: var(--rust); }
+
+  /* Login screen */
+  .admin-login {
+    padding: 3rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .admin-login-title {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--amber);
+    margin-bottom: 0.5rem;
+  }
+
+  .admin-field-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #5a5a70;
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+
+  .admin-input {
+    width: 100%;
+    background: #16161e;
+    border: 1px solid #2a2a35;
+    padding: 0.75rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: #e8e8f0;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  .admin-input:focus { border-color: var(--amber); }
+
+  .admin-login-btn {
+    background: var(--amber);
+    color: var(--ink);
+    border: none;
+    padding: 0.85rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    cursor: pointer;
+    transition: background .2s;
+    margin-top: 0.5rem;
+  }
+
+  .admin-login-btn:hover { background: var(--amber-light); }
+
+  .admin-error {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: #ff6b6b;
+    letter-spacing: 0.1em;
+    min-height: 1em;
+  }
+
+  /* Admin dashboard */
+  .admin-dashboard {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .admin-dashboard.visible { display: flex; }
+
+  .admin-tabs {
+    display: flex;
+    border-bottom: 1px solid #2a2a35;
+    background: #090910;
+  }
+
+  .admin-tab {
+    padding: 0.75rem 1.4rem;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #5a5a70;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .admin-tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+  .admin-tab:hover:not(.active) { color: #9a9ab0; }
+
+  .admin-content {
+    padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  /* Upload form */
+  .upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .field-group { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  .admin-select {
+    width: 100%;
+    background: #16161e;
+    border: 1px solid #2a2a35;
+    padding: 0.75rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: #e8e8f0;
+    outline: none;
+    cursor: pointer;
+    transition: border-color .2s;
+    -webkit-appearance: none;
+  }
+
+  .admin-select:focus { border-color: var(--amber); }
+
+  .admin-textarea {
+    width: 100%;
+    background: #16161e;
+    border: 1px solid #2a2a35;
+    padding: 0.75rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: #e8e8f0;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color .2s;
+  }
+
+  .admin-textarea:focus { border-color: var(--amber); }
+
+  .upload-submit {
+    background: var(--amber);
+    color: var(--ink);
+    border: none;
+    padding: 0.85rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    cursor: pointer;
+    transition: background .2s;
+  }
+
+  .upload-submit:hover { background: var(--amber-light); }
+
+  .admin-success {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: #6bcb77;
+    letter-spacing: 0.1em;
+    min-height: 1em;
+  }
+
+  /* Doc list in admin */
+  .admin-doc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid #2a2a35;
+  }
+
+  .admin-doc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.2rem;
+    border-bottom: 1px solid #2a2a35;
+    gap: 1rem;
+  }
+
+  .admin-doc-item:last-child { border-bottom: none; }
+
+  .admin-doc-info { flex: 1; min-width: 0; }
+
+  .admin-doc-name {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: #c8c8e0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .admin-doc-sub {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    color: #5a5a70;
+    margin-top: 0.2rem;
+    letter-spacing: 0.1em;
+  }
+
+  .admin-doc-delete {
+    background: none;
+    border: 1px solid #3a2a2a;
+    color: #7a4a4a;
+    padding: 0.3rem 0.7rem;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all .2s;
+    flex-shrink: 0;
+  }
+
+  .admin-doc-delete:hover { background: var(--rust); color: #fff; border-color: var(--rust); }
+
+  .admin-empty {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: #5a5a70;
+    text-align: center;
+    padding: 3rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-divider { display: none; }
+    .hero-right { border-top: 1px solid var(--line); }
+    .header-meta { display: none; }
+    .form-row-2 { grid-template-columns: 1fr; }
+    footer { flex-direction: column; text-align: center; }
+  }
+
+  /* ─── ANIMATIONS ─── */
+  .doc-card {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: cardIn .4s ease forwards;
+  }
+
+  @keyframes cardIn {
+    to { opacity:1; transform:none; }
+  }
+
+  .doc-card:nth-child(1) { animation-delay:.05s }
+  .doc-card:nth-child(2) { animation-delay:.1s }
+  .doc-card:nth-child(3) { animation-delay:.15s }
+  .doc-card:nth-child(4) { animation-delay:.2s }
+  .doc-card:nth-child(5) { animation-delay:.25s }
+  .doc-card:nth-child(6) { animation-delay:.3s }
+  .doc-card:nth-child(7) { animation-delay:.35s }
+  .doc-card:nth-child(8) { animation-delay:.4s }
+
+  .highlight { background: rgba(200,146,42,0.2); }
+
+  /* Tab panels */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ─── -->
+<header>
+  <div class="header-top">
+    <div class="header-meta">
+      <div id="live-date">Chargement…</div>
+      <div>Vol. 1 — Édition Numérique</div>
+      <div>ISSN 0000-0000</div>
+    </div>
+    <div class="masthead">
+      <div class="masthead-eyebrow">Bibliothèque numérique des classes préparatoires</div>
+      <div class="masthead-title">Archive<em>Prépa</em></div>
+      <div class="masthead-subtitle">Annales · Cours · Exercices · Corrections</div>
+    </div>
+    <div class="header-meta right">
+      <div>Accès libre</div>
+      <div>En ligne 24h/24</div>
+      <div>Mise à jour continue</div>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <a onclick="filterDocs('all')" class="active" id="nav-all">Tout</a>
+    <a onclick="filterDocs('Mathématiques')" id="nav-math">Mathématiques</a>
+    <a onclick="filterDocs('Physique')" id="nav-phys">Physique</a>
+    <a onclick="filterDocs('Chimie')" id="nav-chem">Chimie</a>
+    <a onclick="filterDocs('Informatique')" id="nav-info">Informatique</a>
+    <a onclick="filterDocs('Français')" id="nav-fr">Français</a>
+    <a onclick="filterDocs('Anglais')" id="nav-en">Anglais</a>
+  </nav>
+</header>
+
+<!-- ─── TICKER ─── -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <span>Annales MPSI 2024</span>
+    <span>Cours de Thermodynamique</span>
+    <span>Exercices d'Algèbre Linéaire</span>
+    <span>Préparation aux Concours</span>
+    <span>Chimie Organique — MP</span>
+    <span>Analyse Numérique — PCSI</span>
+    <span>Annales MPSI 2024</span>
+    <span>Cours de Thermodynamique</span>
+    <span>Exercices d'Algèbre Linéaire</span>
+    <span>Préparation aux Concours</span>
+    <span>Chimie Organique — MP</span>
+    <span>Analyse Numérique — PCSI</span>
+  </div>
+</div>
+
+<!-- ─── HERO ─── -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-kicker">◆ Ressources académiques</div>
+    <h1 class="hero-headline">
+      La <strong>bibliothèque complète</strong> des classes préparatoires
+    </h1>
+    <p class="hero-body">Annales, cours, exercices corrigés — tout ce qu'il faut pour réussir les grandes écoles.</p>
+  </div>
+  <div class="hero-divider"></div>
+  <div class="hero-right">
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Chercher un cours, une annale…" oninput="handleSearch(this.value)">
+      <button onclick="handleSearch(document.getElementById('searchInput').value)">Chercher</button>
+    </div>
+    <div class="stats-row">
+      <div class="stat-cell">
+        <span class="stat-num" id="stat-docs">0</span>
+        <span class="stat-label">Documents</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num" id="stat-subjects">0</span>
+        <span class="stat-label">Matières</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">24/7</span>
+        <span class="stat-label">Disponible</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">Gratuit</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ARCHIVE ─── -->
+<div class="section-header">
+  <h2>Archive <em>complète</em></h2>
+  <div class="section-rule"></div>
+  <div class="section-count" id="doc-count">0 documents</div>
+</div>
+
+<div class="filters">
+  <span class="filter-label">Filtrer :</span>
+  <button class="filter-btn active" onclick="filterType('all', this)">Tous</button>
+  <button class="filter-btn" onclick="filterType('Annale', this)">Annales</button>
+  <button class="filter-btn" onclick="filterType('Cours', this)">Cours</button>
+  <button class="filter-btn" onclick="filterType('Exercice', this)">Exercices</button>
+  <button class="filter-btn" onclick="filterType('Correction', this)">Corrections</button>
+</div>
+
+<section id="archive">
+  <div class="archive-grid" id="archiveGrid">
+    <div class="empty-state">
+      <p>La bibliothèque est vide pour l'instant.<br>L'administrateur peut ajouter des documents.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <div class="f-logo">Archive<em>Prépa</em></div>
+  <div class="f-copy">© 2025 ArchivePrepa — Bibliothèque numérique libre</div>
+</footer>
+
+<!-- ─── PDF VIEWER ─── -->
+<div class="viewer-overlay" id="viewerOverlay">
+  <div class="viewer-box">
+    <div class="viewer-header">
+      <div class="viewer-title" id="viewerTitle">Document</div>
+      <button class="viewer-close" onclick="closeViewer()">✕</button>
+    </div>
+    <iframe class="viewer-iframe" id="viewerFrame" src="" allowfullscreen></iframe>
+  </div>
+</div>
+
+<!-- ─── ADMIN PANEL ─── -->
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-box">
+    <div class="admin-topbar">
+      <div class="admin-topbar-left">
+        <div class="admin-dot dot-red"></div>
+        <div class="admin-dot dot-yellow"></div>
+        <div class="admin-dot dot-green"></div>
+        <div class="admin-topbar-title">Admin Terminal — ArchivePrepa</div>
+      </div>
+      <button class="admin-close-btn" onclick="closeAdmin()">✕</button>
+    </div>
+
+    <!-- Login -->
+    <div id="adminLogin" class="admin-login">
+      <div class="admin-login-title">// Accès sécurisé requis</div>
+      <div class="field-group">
+        <label class="admin-field-label">Mot de passe</label>
+        <input type="password" id="adminPass" class="admin-input" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')tryLogin()">
+      </div>
+      <div class="admin-error" id="loginError"></div>
+      <button class="admin-login-btn" onclick="tryLogin()">Authentifier →</button>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="adminDash" class="admin-dashboard">
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="switchTab('upload', this)">Ajouter un document</button>
+        <button class="admin-tab" onclick="switchTab('list', this)">Gérer les documents</button>
+      </div>
+      <div class="admin-content">
+        <!-- Upload tab -->
+        <div class="tab-panel active" id="tab-upload">
+          <div class="upload-form">
+            <div class="field-group">
+              <label class="admin-field-label">Titre du document *</label>
+              <input type="text" class="admin-input" id="docTitle" placeholder="Ex: Annales Mathématiques MPSI 2024">
+            </div>
+            <div class="form-row-2">
+              <div class="field-group">
+                <label class="admin-field-label">Matière *</label>
+                <select class="admin-select" id="docSubject">
+                  <option value="Mathématiques">Mathématiques</option>
+                  <option value="Physique">Physique</option>
+                  <option value="Chimie">Chimie</option>
+                  <option value="Informatique">Informatique</option>
+                  <option value="Français">Français</option>
+                  <option value="Anglais">Anglais</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="admin-field-label">Type *</label>
+                <select class="admin-select" id="docType">
+                  <option value="Annale">Annale</option>
+                  <option value="Cours">Cours</option>
+                  <option value="Exercice">Exercice</option>
+                  <option value="Correction">Correction</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row-2">
+              <div class="field-group">
+                <label class="admin-field-label">Classe</label>
+                <select class="admin-select" id="docClass">
+                  <option value="MPSI">MPSI</option>
+                  <option value="MP">MP</option>
+                  <option value="PCSI">PCSI</option>
+                  <option value="PC">PC</option>
+                  <option value="PSI">PSI</option>
+                  <option value="TSI">TSI</option>
+                  <option value="BCPST">BCPST</option>
+                  <option value="HK">HK</option>
+                  <option value="Autre">Autre</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="admin-field-label">Année</label>
+                <input type="number" class="admin-input" id="docYear" placeholder="2024" min="2000" max="2100">
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="admin-field-label">Lien du PDF (URL) *</label>
+              <input type="url" class="admin-input" id="docUrl" placeholder="https://exemple.com/document.pdf">
+            </div>
+            <div class="field-group">
+              <label class="admin-field-label">Description (optionnel)</label>
+              <textarea class="admin-textarea" id="docDesc" placeholder="Brève description du document…"></textarea>
+            </div>
+            <div class="admin-success" id="uploadSuccess"></div>
+            <button class="upload-submit" onclick="addDocument()">Publier le document →</button>
+          </div>
+        </div>
+
+        <!-- List tab -->
+        <div class="tab-panel" id="tab-list">
+          <div class="admin-doc-list" id="adminDocList">
+            <div class="admin-empty">Aucun document publié.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───
+const STORAGE_KEY = 'archiveprepa_docs_v1';
+let docs = [];
+let currentFilter = { subject: 'all', type: 'all', search: '' };
+
+// ─── LOAD / SAVE ───
+function loadDocs() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    docs = raw ? JSON.parse(raw) : [];
+  } catch(e) { docs = []; }
+}
+
+function saveDocs() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(docs));
+}
+
+// ─── RENDER ───
+function getFilteredDocs() {
+  return docs.filter(d => {
+    const matchSubject = currentFilter.subject === 'all' || d.subject === currentFilter.subject;
+    const matchType = currentFilter.type === 'all' || d.type === currentFilter.type;
+    const q = currentFilter.search.toLowerCase();
+    const matchSearch = !q || d.title.toLowerCase().includes(q) || (d.subject||'').toLowerCase().includes(q) || (d.type||'').toLowerCase().includes(q);
+    return matchSubject && matchType && matchSearch;
+  });
+}
+
+function render() {
+  const grid = document.getElementById('archiveGrid');
+  const filtered = getFilteredDocs();
+  const countEl = document.getElementById('doc-count');
+  countEl.textContent = filtered.length + ' document' + (filtered.length !== 1 ? 's' : '');
+
+  // stats
+  const subjects = new Set(docs.map(d => d.subject)).size;
+  document.getElementById('stat-docs').textContent = docs.length;
+  document.getElementById('stat-subjects').textContent = subjects;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><p>${docs.length === 0 ? 'La bibliothèque est vide pour l\'instant.<br>L\'administrateur peut ajouter des documents.' : 'Aucun résultat pour cette recherche.'}</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((d, i) => `
+    <div class="doc-card" data-num="${String(i+1).padStart(3,'0')}" style="animation-delay:${Math.min(i * 0.05, 0.5)}s">
+      <div class="doc-tag">${d.subject || 'Général'}</div>
+      <div class="doc-title">${escapeHtml(d.title)}</div>
+      <div class="doc-meta">
+        <span>${d.type || ''}</span>
+        ${d.docClass ? `<span>${d.docClass}</span>` : ''}
+        ${d.year ? `<span>${d.year}</span>` : ''}
+      </div>
+      ${d.desc ? `<div class="doc-desc">${escapeHtml(d.desc)}</div>` : ''}
+      <button class="doc-open-btn" onclick="openViewer('${encodeURIComponent(d.url)}','${encodeURIComponent(d.title)}')">
+        Consulter
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M2 10L10 2M10 2H5M10 2V7"/>
+        </svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── FILTERS ───
+function filterDocs(subject) {
+  currentFilter.subject = subject;
+  // update nav
+  document.querySelectorAll('.header-nav a').forEach(a => a.classList.remove('active'));
+  const map = {all:'nav-all','Mathématiques':'nav-math','Physique':'nav-phys','Chimie':'nav-chem','Informatique':'nav-info','Français':'nav-fr','Anglais':'nav-en'};
+  if (map[subject]) document.getElementById(map[subject])?.classList.add('active');
+  render();
+}
+
+function filterType(type, btn) {
+  currentFilter.type = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function handleSearch(val) {
+  currentFilter.search = val;
+  render();
+}
+
+// ─── VIEWER ───
+function openViewer(encodedUrl, encodedTitle) {
+  const url = decodeURIComponent(encodedUrl);
+  const title = decodeURIComponent(encodedTitle);
+  // Embed PDFs via Google Docs viewer for cross-origin support
+  const embedUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+  document.getElementById('viewerFrame').src = embedUrl;
+  document.getElementById('viewerTitle').textContent = title;
+  document.getElementById('viewerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeViewer() {
+  document.getElementById('viewerOverlay').classList.remove('open');
+  document.getElementById('viewerFrame').src = '';
+  document.body.style.overflow = '';
+}
+
+// ─── ADMIN ───
+let adminUnlocked = false;
+const ADMIN_PASS = 'PD456dza@C_d';
+
+const keys = { ctrl: false, shift: false };
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Control') keys.ctrl = true;
+  if (e.key === 'Alt') keys.shift = true;
+  if (e.key === 'p' && keys.ctrl && keys.shift) {
+    e.preventDefault();
+    openAdmin();
+  }
+});
+
+document.addEventListener('keyup', e => {
+  if (e.key === 'Control') keys.ctrl = false;
+  if (e.key === 'Alt') keys.shift = false;
+});
+
+function openAdmin() {
+  document.getElementById('adminOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (!adminUnlocked) {
+    document.getElementById('adminLogin').style.display = 'flex';
+    document.getElementById('adminDash').classList.remove('visible');
+    setTimeout(() => document.getElementById('adminPass').focus(), 100);
+  }
+}
+
+function closeAdmin() {
+  document.getElementById('adminOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function tryLogin() {
+  const pass = document.getElementById('adminPass').value;
+  const errEl = document.getElementById('loginError');
+  if (pass === ADMIN_PASS) {
+    adminUnlocked = true;
+    document.getElementById('adminLogin').style.display = 'none';
+    document.getElementById('adminDash').classList.add('visible');
+    renderAdminList();
+    errEl.textContent = '';
+    document.getElementById('adminPass').value = '';
+  } else {
+    errEl.textContent = '✕  Mot de passe incorrect.';
+    document.getElementById('adminPass').value = '';
+    document.getElementById('adminPass').focus();
+  }
+}
+
+// ─── ADMIN TABS ───
+function switchTab(name, btn) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'list') renderAdminList();
+}
+
+// ─── ADD DOCUMENT ───
+function addDocument() {
+  const title = document.getElementById('docTitle').value.trim();
+  const url = document.getElementById('docUrl').value.trim();
+  const subject = document.getElementById('docSubject').value;
+  const type = document.getElementById('docType').value;
+  const docClass = document.getElementById('docClass').value;
+  const year = document.getElementById('docYear').value.trim();
+  const desc = document.getElementById('docDesc').value.trim();
+  const successEl = document.getElementById('uploadSuccess');
+
+  if (!title || !url) {
+    successEl.style.color = '#ff6b6b';
+    successEl.textContent = '✕  Titre et lien obligatoires.';
+    return;
+  }
+
+  const doc = { id: Date.now(), title, url, subject, type, docClass, year, desc };
+  docs.unshift(doc);
+  saveDocs();
+  render();
+
+  // Clear form
+  document.getElementById('docTitle').value = '';
+  document.getElementById('docUrl').value = '';
+  document.getElementById('docDesc').value = '';
+  document.getElementById('docYear').value = '';
+
+  successEl.style.color = '#6bcb77';
+  successEl.textContent = '✓  Document publié avec succès.';
+  setTimeout(() => { successEl.textContent = ''; }, 3000);
+}
+
+// ─── ADMIN DOC LIST ───
+function renderAdminList() {
+  const el = document.getElementById('adminDocList');
+  if (docs.length === 0) {
+    el.innerHTML = '<div class="admin-empty">Aucun document publié.</div>';
+    return;
+  }
+  el.innerHTML = docs.map(d => `
+    <div class="admin-doc-item">
+      <div class="admin-doc-info">
+        <div class="admin-doc-name">${escapeHtml(d.title)}</div>
+        <div class="admin-doc-sub">${d.subject} · ${d.type} · ${d.docClass || '—'} · ${d.year || '—'}</div>
+      </div>
+      <button class="admin-doc-delete" onclick="deleteDoc(${d.id})">Supprimer</button>
+    </div>
+  `).join('');
+}
+
+function deleteDoc(id) {
+  docs = docs.filter(d => d.id !== id);
+  saveDocs();
+  render();
+  renderAdminList();
+}
+
+// ─── LIVE DATE ───
+function updateDate() {
+  const now = new Date();
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+  document.getElementById('live-date').textContent = now.toLocaleDateString('fr-FR', opts);
+}
+
+// ─── INIT ───
+loadDocs();
+render();
+updateDate();
+setInterval(updateDate, 60000);
+</script>
+</body>
+</html>
